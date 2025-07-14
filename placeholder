@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Maxi Clicker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      background: #f0f0f0;
+    }
+    #game-container {
+      flex: 1;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 { margin-top: 0; }
+    .stats div { margin: 5px 0; }
+    #cookie {
+      width: 200px;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto;
+    }
+    #cookie2 {
+      display: none;
+      margin: 10px auto;
+      padding: 10px 20px;
+      font-size: 24px;
+      background: #007bff;
+      color: white;
+      border: 2px solid #aaa;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .button-container button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #sidebar {
+      width: 240px;
+      background: #fff;
+      padding: 10px;
+      height: 100vh;
+      overflow-y: auto;
+      border-left: 2px solid #ccc;
+    }
+    #admin-panel {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border: 2px solid black;
+      padding: 15px;
+      z-index: 999;
+    }
+    .pet-entry {
+      padding: 5px;
+      border: 1px solid #ccc;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+    .pet-entry.selected {
+      background-color: #e0ffe0;
+      border-color: green;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <h1>Maxi Clicker</h1>
+    <img id="cookie" src="https://i.imgur.com/cRBGRmm_d.webp?maxwidth=760&fidelity=grand" alt="Cookie" />
+    <button id="cookie2">⭐️</button>
+    <button onclick="logout()">Logout</button>
+    <div id="logged-in-user"></div>
+    <div class="stats">
+      <div id="cookie-count">Maxies: 0</div>
+      <div id="star-count">Stars: 0</div>
+      <div id="automaxi-count">Automaxis: 0</div>
+      <div id="grandmaxi-count">Grandmaxis: 0</div>
+      <div id="maxiplantage-count">Maxiplantagen: 0</div>
+      <div id="maxitaxi-count">Maxitaxis: 0</div>
+      <div id="maxibus-count">Maxibusse: 0</div>
+      <div id="win-count">Wins: 0</div>
+    </div>
+    <div class="button-container">
+      <button id="automaxi">Buy Automaxi (10 Maxies)</button>
+      <button id="grandmaxi">Buy Grandmaxi (20 Maxies)</button>
+      <button id="maxiplantage">Buy Maxiplantage (100 Maxies)</button>
+      <button id="maxitaxi">Buy Maxitaxi (250 Maxies)</button>
+      <button id="maxibus">Buy Maxibus (1000 Maxies)</button>
+      <button id="win">Buy Win (1000000 Maxies)</button>
+    </div>
+  </div>
+
+  <div id="sidebar">
+    <h2>Shop</h2>
+    <button onclick="buyEgg('trash')">Trash-Ei (100 Maxies)</button>
+    <button onclick="buyEgg('basic')">Basis-Ei (300 Maxies)</button>
+    <button onclick="buyEgg('royal')">Königs-Ei (1000 Maxies)</button>
+    <button onclick="buyEgg('op')">OP-Ei (100000 Maxies)</button>
+    <button onclick="buyEgg('event')">Event-Ei (25 Stars)</button>
+
+    <h2>Upgrades</h2>
+    <button onclick="buyGlobalMultiplier(this)">Globaler Multiplikator (2x) – 500</button>
+    <button onclick="buyItemMultiplier('automaxi', 300, this)">Boost Automaxi – 300</button>
+    <button onclick="buyItemMultiplier('grandmaxi', 400, this)">Boost Grandmaxi – 400</button>
+    <button onclick="buyItemMultiplier('maxiplantage', 600, this)">Boost Maxiplantage – 600</button>
+    <button onclick="buyItemMultiplier('maxitaxi', 750, this)">Boost Maxitaxi – 750</button>
+    <button onclick="buyItemMultiplier('maxibus', 800, this)">Boost Maxibus – 800</button>
+    <button onclick="buyItemMultiplier('stars', 10, this, 2, true)">Event Multiplier (2x) – 10 Stars</button>
+    <button onclick="buyItemMultiplier('stars2', 50, this, 3, true)">Event Multiplier (3x) – 50 Stars</button>
+
+    <h2>Haustiere</h2>
+    <div id="pet-list"></div>
+    <div id="active-pets">Aktive Haustiere: Keine</div>
+  </div>
+
+  <div id="admin-panel">
+    <h3>Admin Panel</h3>
+    <button onclick="cookieCount += 1000000; updateDisplay()">+1M Maxies</button>
+    <button onclick="starCount += 100000; updateDisplay()">+100K Stars</button>
+    <button onclick="buyItemMultiplier('automaxi', 0, this, 10)">Max Automaxi Boost</button>
+    <button onclick="hatchPet('mythical')">Add Mythical Pet</button>
+    <button onclick="document.getElementById('admin-panel').style.display='none'">Close</button>
+  </div>
+
+  <script>
+    let cookieCount = 0, starCount = 0;
+    let autoMaxis = 0, grandMaxis = 0, maxiplantage = 0, maxitaxis = 0, maxibus = 0, wins = 0;
+    let globalMultiplier = 1;
+    const itemMultipliers = { automaxi: 1, grandmaxi: 1, maxiplantage: 1, maxitaxi: 1, maxibus: 1, stars: 1, stars2: 1 };
+    const pets = [], selectedPets = [];
+    const MAX_SELECTED_PETS = 3;
+
+    const rarities = {
+      trash: { name: 'Trash', bonus: 1 },
+      uncommon: { name: 'Uncommon', bonus: 5 },
+      rare: { name: 'Rare', bonus: 15 },
+      epic: { name: 'Epic', bonus: 30 },
+      legendary: { name: 'Legendary', bonus: 100 },
+      mythical: { name: 'Mythical', bonus: 10000 },
+      event: { name: 'Event', bonus: 2, affectsStars: true },
+      event2: { name: 'Event2', bonus: 2.5, affectsStars: true },
+      event3: { name: 'Event3', bonus: 3.0, affectsStars: true }
+    };
+
+    const eggTypes = {
+      trash: { cost: 100, chances: { trash: 1.0 } },
+      basic: { cost: 300, chances: { trash: 0.4, uncommon: 0.4, rare: 0.2 } },
+      royal: { cost: 1000, chances: { uncommon: 0.3, rare: 0.4, epic: 0.2, legendary: 0.1 } },
+      op: { cost: 100000, chances: { legendary: 0.9, mythical: 0.1 } },
+      event: { cost: 25, chances: { event: 0.6, event2: 0.3, event3: 0.1 } }
+    };
+
+    const tierarten = {
+      trash: ["Maus", "Ratte"],
+      uncommon: ["Hase", "Fuchs"],
+      rare: ["Eule", "Pinguin"],
+      epic: ["Wolf", "Phönix"],
+      legendary: ["Drache", "Greif"],
+      mythical: ["Panda", "Giraffe"],
+      event: ["Event-Igel"],
+      event2: ["Event-Katze"],
+      event3: ["Event-Eule"]
+    };
+
+    function updateDisplay() {
+      document.getElementById('cookie-count').textContent = `Maxies: ${Math.floor(cookieCount)}`;
+      document.getElementById('star-count').textContent = `Stars: ${Math.floor(starCount)}`;
+      document.getElementById('automaxi-count').textContent = `Automaxis: ${autoMaxis}`;
+      document.getElementById('grandmaxi-count').textContent = `Grandmaxis: ${grandMaxis}`;
+      document.getElementById('maxiplantage-count').textContent = `Maxiplantagen: ${maxiplantage}`;
+      document.getElementById('maxitaxi-count').textContent = `Maxitaxis: ${maxitaxis}`;
+      document.getElementById('maxibus-count').textContent = `Maxibusse: ${maxibus}`;
+      document.getElementById('win-count').textContent = `Wins: ${wins}`;
+    }
+
+    document.getElementById('cookie').onclick = () => {
+      cookieCount++;
+      updateDisplay();
+    };
+
+    document.getElementById('cookie2').onclick = () => {
+      let multiplier = itemMultipliers.stars * itemMultipliers.stars2;
+      pets.forEach(pet => {
+        if (pet.affectsStars) multiplier *= pet.bonus;
+      });
+      starCount += multiplier;
+      updateDisplay();
+    };
+
+    document.getElementById('automaxi').onclick = () => { if (cookieCount >= 10) { cookieCount -= 10; autoMaxis++; updateDisplay(); } };
+    document.getElementById('grandmaxi').onclick = () => { if (cookieCount >= 20) { cookieCount -= 20; grandMaxis++; updateDisplay(); } };
+    document.getElementById('maxiplantage').onclick = () => { if (cookieCount >= 100) { cookieCount -= 100; maxiplantage++; updateDisplay(); } };
+    document.getElementById('maxitaxi').onclick = () => { if (cookieCount >= 250) { cookieCount -= 250; maxitaxis++; updateDisplay(); } };
+    document.getElementById('maxibus').onclick = () => { if (cookieCount >= 1000) { cookieCount -= 1000; maxibus++; updateDisplay(); } };
+    document.getElementById('win').onclick = () => { if (cookieCount >= 1000000) { cookieCount -= 1000000; wins++; alert("Gewonnen!"); updateDisplay(); } };
+
+    function buyItemMultiplier(item, cost, btn, multiplier = 1.5, useStars = false) {
+      const enough = useStars ? starCount >= cost : cookieCount >= cost;
+      if (enough) {
+        if (useStars) starCount -= cost; else cookieCount -= cost;
+        itemMultipliers[item] *= multiplier;
+        btn.remove();
+        updateDisplay();
+      }
+    }
+
+    function buyGlobalMultiplier(btn) {
+      if (cookieCount >= 500) {
+        cookieCount -= 500;
+        globalMultiplier *= 2;
+        btn.remove();
+        updateDisplay();
+      }
+    }
+
+    function buyEgg(type) {
+      const egg = eggTypes[type];
+      if (!egg) return;
+      const usesStars = type === "event";
+      const cost = egg.cost;
+      if ((usesStars && starCount < cost) || (!usesStars && cookieCount < cost)) return;
+      if (usesStars) starCount -= cost; else cookieCount -= cost;
+
+      let roll = Math.random();
+      let cumulative = 0;
+      for (const [rarity, chance] of Object.entries(egg.chances)) {
+        cumulative += chance;
+        if (roll <= cumulative) {
+          hatchPet(rarity);
+          break;
+        }
+      }
+      updateDisplay();
+    }
+
+    function hatchPet(rarity) {
+      const options = tierarten[rarity];
+      const name = `${rarities[rarity].name} ${options[Math.floor(Math.random() * options.length)]}`;
+      const pet = { name, rarity, bonus: rarities[rarity].bonus, affectsStars: !!rarities[rarity].affectsStars };
+      pets.push(pet);
+      refreshPetList();
+      updateDisplay();
+    }
+
+    function refreshPetList() {
+      const list = document.getElementById('pet-list');
+      list.innerHTML = '';
+      pets.forEach(pet => {
+        const div = document.createElement('div');
+        div.className = 'pet-entry' + (selectedPets.includes(pet) ? ' selected' : '');
+        div.textContent = pet.affectsStars
+          ? `${pet.name} (x${pet.bonus} Stars)`
+          : `${pet.name} (+${pet.bonus}/sec)`;
+        div.onclick = () => {
+          if (selectedPets.includes(pet)) {
+            selectedPets.splice(selectedPets.indexOf(pet), 1);
+          } else if (selectedPets.length < MAX_SELECTED_PETS) {
+            selectedPets.push(pet);
+          }
+          refreshPetList();
+        };
+        list.appendChild(div);
+      });
+      document.getElementById('active-pets').textContent =
+        selectedPets.length
+          ? "Aktive Haustiere: " + selectedPets.map(p => p.name).join(", ")
+          : "Aktive Haustiere: Keine";
+    }
+
+    function logout() {
+      fetch('/logout', { method: 'POST' })
+        .then(() => window.location.href = '/login.html');
+    }
+
+    function autoClick() {
+      let total =
+        (autoMaxis * itemMultipliers.automaxi) +
+        (grandMaxis * 5 * itemMultipliers.grandmaxi) +
+        (maxiplantage * 15 * itemMultipliers.maxiplantage) +
+        (maxitaxis * 45 * itemMultipliers.maxitaxi) +
+        (maxibus * 100 * itemMultipliers.maxibus);
+      selectedPets.forEach(pet => { if (!pet.affectsStars) total += pet.bonus; });
+      cookieCount += total * globalMultiplier;
+      updateDisplay();
+    }
+
+    function savePlayerData() {
+      fetch('/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cookieCount, starCount, autoMaxis, grandMaxis, maxiplantage, maxitaxis, maxibus, wins, globalMultiplier, itemMultipliers, pets, selectedPets })
+      });
+    }
+
+    function loadPlayerData() {
+      fetch('/load').then(res => res.json()).then(data => {
+        if (data.cookieCount !== undefined) {
+          cookieCount = data.cookieCount;
+          starCount = data.starCount;
+          autoMaxis = data.autoMaxis;
+          grandMaxis = data.grandMaxis;
+          maxiplantage = data.maxiplantage;
+          maxitaxis = data.maxitaxis;
+          maxibus = data.maxibus;
+          wins = data.wins;
+          globalMultiplier = data.globalMultiplier;
+          Object.assign(itemMultipliers, data.itemMultipliers || {});
+          pets.length = 0; pets.push(...(data.pets || []));
+          selectedPets.length = 0; selectedPets.push(...(data.selectedPets || []));
+          refreshPetList();
+          updateDisplay();
+        }
+      });
+    }
+
+    fetch('/me')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.user) window.location.href = '/login.html';
+        document.getElementById('logged-in-user').textContent = `Eingeloggt als: ${data.user}`;
+      });
+
+    setInterval(autoClick, 1000);
+    setInterval(savePlayerData, 10000);
+    loadPlayerData();
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "maxi",
+  "version": "1.0.0",
+  "description": "A basic Node.js app serving index.html and using SQLite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+ "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.18.4",
+    "express-session": "^1.17.3",
+    "sqlite3": "^5.1.6"
+  },
+  
+  
+  "author": "",
+  "license": "ISC"
+}

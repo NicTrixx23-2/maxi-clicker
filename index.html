@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="google-adsense-account" content="ca-pub-9848624671160280">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9848624671160280"
+     crossorigin="anonymous">
+  </script>
+  <title>Maxi Clicker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      overflow: auto;
+    }
+
+    #game-container {
+      flex: 1;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    #cookie {
+  width: 200px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto; /* ← zentriert horizontal */
+}
+
+
+    .stats {
+      margin: 20px 0;
+    }
+
+    .button-container button {
+      display: inline;
+      margin: 5px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      cursor: pointer;
+    }
+
+    .button-container button:hover {
+      background-color: #0056b3;
+    }
+
+    #sidebar {
+      width: 240px;
+      background: #ffffff;
+      border-left: 2px solid #ccc;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    #sidebar h2 {
+      text-align: center;
+    }
+
+    #sidebar section {
+      margin-bottom: 20px;
+    }
+
+    .pet-entry {
+      padding: 5px;
+      border: 1px solid #ccc;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+
+    .pet-entry.selected {
+      background-color: #e0ffe0;
+      border-color: green;
+    }
+
+    #active-pets {
+      margin-top: 10px;
+      font-size: 14px;
+      font-style: italic;
+    }
+    #event {
+      display: flex;
+      top: 100px;
+    }
+    #event-btn {
+      display: block;
+      margin: 5px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      cursor: pointer;
+    }
+#cookie2 {
+  display: none;
+  margin: 10px auto;
+  padding: 10px 20px;
+  font-size: 24px;
+  background: #007bff;
+  color: white;
+  border: 2px solid #aaa;
+  border-radius: 50%;
+  cursor: pointer;
+}
+    #event-btn-ext {
+      
+      display: none;
+      margin: 5px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 1px;
+      transition: background-color 0.2s;
+      cursor: pointer;
+    }
+    
+      * {
+      touch-action: none;
+  }
+    
+    #egg-container {
+  position: relative;
+  width: 200px;
+  height: 250px;
+  margin: 50px auto;
+}
+
+#egg {
+  width: 100px;
+  height: 140px;
+  background: white;
+  border: 4px solid black;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.crack {
+  width: 4px;
+  height: 80px;
+  background: black;
+  position: absolute;
+  top: 30px;
+  left: 48px;
+  opacity: 0;
+}
+
+#pet {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.pet-body {
+  width: 80px;
+  height: 80px;
+  background: lightblue;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: popOut 0.5s ease forwards;
+}
+
+.eye {
+  width: 10px;
+  height: 10px;
+  background: black;
+  border-radius: 50%;
+  position: absolute;
+  top: 25px;
+}
+
+.eye.left { left: 20px; }
+.eye.right { right: 20px; }
+
+@keyframes shake {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+  25% { transform: translate(-50%, -50%) rotate(5deg); }
+  50% { transform: translate(-50%, -50%) rotate(-5deg); }
+  75% { transform: translate(-50%, -50%) rotate(5deg); }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+
+@keyframes popOut {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+    @keyframes goAway {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+    
+    
+    @keyframes goRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 1;
+  }
+}
+    @keyframes goRight2 {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(1000%);
+    opacity: 1;
+  }
+}
+    
+#reveal-container {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 100px;
+  overflow: hidden;
+  background: #111;
+  border: 3px solid gold;
+  border-radius: 10px;
+  z-index: 9999;
+}
+
+.reveal-strip {
+  display: flex;
+  transition: transform 8s cubic-bezier(0.1, 1, 0.3, 1);
+}
+
+.reveal-item {
+  width: 100px;
+  height: 100px;
+  margin: 0 5px;
+  background: #333;
+  color: white;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #666;
+  border-radius: 8px;
+}
+
+.highlight-frame {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  left: 110px;
+  top: 0;
+  border: 3px solid yellow;
+  pointer-events: none;
+}
+
+
+
+    
+    * {
+      touch-action: manipulation;
+    }
+
+  </style>
+  </head>
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9848624671160280"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-format="autorelaxed"
+     data-ad-client="ca-pub-9848624671160280"
+     data-ad-slot="9389313933"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+  
+  <div style="position: fixed;
+  bottom: 10px;
+  right: 10px;
+  width: 150px;
+  padding: 5px;
+  font-size: 12px;
+  border: 1px solid #888;
+  border-radius: 4px;
+  background: #f9f9f9;
+  z-index: 9999;;">
+  <input type="username" id="dev-password" placeholder="Admin-Code">
+  <button onclick="codes()">Check</button>
+</div>
+
+  <div id="admin-panel" style="display: none; position: fixed; top: 20px; right: 20px; background: white; border: 2px solid #000; padding: 15px; z-index: 999; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
+  <h3>🛠️ Admin Panel</h3>
+  <button onclick="cookieCount += 1000000; updateDisplay()">+1M Maxies</button><br>
+  <button onclick="starCount += 100000; updateDisplay()">+100K Stars</button><br>
+  <button onclick="buyItemMultiplier('automaxi', 0, this, 10)">Max Automaxi Boost</button><br>
+  <button onclick="buyItemMultiplier('stars', 0, this, 100, true)">Max Star Boost</button><br>
+  <button onclick="hatchPet('mythical')">Add Mythical Pet</button><br>
+  <button onclick="hatchPet('event3')">Add Event3 Pet</button><br>
+  <button id="restrtServer">Restart Server</button>
+  <button onclick="document.getElementById('admin-panel').style.display='none'">❌ Close</button>
+</div>
+
+
+<body>
+  <div id="game-container">
+    <h1>Maxi Clicker</h1>
+    <img id="cookie" src="https://i.imgur.com/cRBGRmm_d.webp?maxwidth=760&fidelity=grand" alt="Cookie" />
+    <button onclick="logout()">Logout</button>
+    <a href="https://maxi-clicker2.glitch.me/login.html">Login</a>
+    <button id="cookie2" alt="evnt-cookie">⭐️</button>
+    <div class="stats">
+      <div id="star-count">Stars: 0</div>
+      <div id="logged-in-user" style="position: absolute; top: 10px; left: 10px; font-size: 14px; background: #eee; padding: 5px 10px; border-radius: 4px;"></div>
+      <div id="cookie-count">Maxies: 0</div>
+      <div id="automaxi-count">Automaxis: 0</div>
+      <div id="grandmaxi-count">Grandmaxis: 0</div>
+      <div id="maxiplantage-count">Maxiplantagen: 0</div>
+      <div id="maxitaxi-count">Maxitaxis: 0</div>
+      <div id="maxibus-count">Maxibusse: 0</div>
+      <div id="win-count">Wins: 0</div>
+    </div>
+    
+    <div id="reveal-container" style="display: none;">
+  <div class="highlight-frame"></div>
+  <div class="reveal-strip" id="reveal-strip"></div>
+</div>
+
+
+    <div class="button-container">
+      <button id="automaxi">Buy Automaxi (10 Maxies)</button>
+      <button id="grandmaxi">Buy Grandmaxi (20 Maxies)</button>
+      <button id="maxiplantage">Buy Maxiplantage (100 Maxies)</button>
+      <button id="maxitaxi">Buy Maxitaxi (250 Maxies)</button>
+      <button id="maxibus">Buy Maxibus (1000 Maxies)</button>
+      <button id="win">Buy Win (1000000 Maxies)</button>
+      <!--<button onclick="saveProgress()">💾 Save</button>-->
+    </div>
+  </div>
+
+  
+  <div id="sidebar">
+    <section>
+      <h2>Shop</h2>
+      <button onclick="buyEgg('trash')">Trash-Ei (100 Maxies)</button>
+      <button onclick="buyEgg('basic')">Basis-Ei (300 Maxies)</button>
+      <button onclick="buyEgg('royal')">Königs-Ei (1000 Maxies)</button>
+      <button onclick="buyEgg('op')">OP-Ei (100000 Maxies)</button>
+      <button onclick="buyEgg('event')">Event-Ei (25 Stars)</button>
+    </section>
+
+    <section>
+      <h2>Upgrades</h2>
+      <button onclick="buyGlobalMultiplier(this)">Globaler Multiplikator (2x) – 500</button>
+      <button onclick="buyItemMultiplier('automaxi', 300, this)">Boost Automaxi (1.5x) – 300</button>
+      <button onclick="buyItemMultiplier('grandmaxi', 400, this)">Boost Grandmaxi (1.5x) – 400</button>
+      <button onclick="buyItemMultiplier('maxiplantage', 600, this)">Boost Maxiplantage (1.5x) – 600</button>
+      <button onclick="buyItemMultiplier('maxitaxi', 750, this)">Boost Maxitaxi (1.5x) – 750</button>
+      <button onclick="buyItemMultiplier('maxibus', 800, this)">Boost Maxibus (1.5x) – 800</button>
+      <button onclick="buyItemMultiplier('stars', 10, this, 2, true)">Buy Event Multiplier (2x) – 10 Stars</button>
+      <button onclick="buyItemMultiplier('stars2', 50, this, 3, true)">Buy Event Multiplier (3x) – 75 Stars</button>
+      <button onclick="hatchEgg();">Kaka</button>
+
+
+    </section>
+
+    <section>
+      <h2>Haustiere</h2>
+      <div id="pet-list"></div>
+      <div id="active-pets">Aktive Haustiere: Keine</div>
+    </section>
+  </div>
+  
+  
+  <div id="event">
+    <button id="event-btn">Star Event⭐️</button>
+    <button id="event-btn-ext">Exit Event</button>
+  </div>
+  
+  <div id="egg-container" style="display :none;">
+  <div id="egg">
+    <div class="crack"></div>
+  </div>
+  <div id="pet" style="display: none;">
+    <div class="pet-body">
+      <div class="eye left"></div>
+      <div class="eye right"></div>
+    </div>
+  </div>
+</div>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9848624671160280"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-format="autorelaxed"
+     data-ad-client="ca-pub-9848624671160280"
+     data-ad-slot="9389313933"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  <script>
+let cookieCount = 0;
+let starCount = 0;
+let autoMaxis = 0, grandMaxis = 0, maxiplantage = 0, maxitaxis = 0, maxibus = 0, wins = 0;
+let autoMaxiCost = 10, grandMaxiCost = 20, maxiplantageCost = 100, maxitaxiCost = 250, maxibusCost = 10000, winCost = 1000000;
+let globalMultiplier = 1;
+const itemMultipliers = { automaxi: 1, grandmaxi: 1, maxiplantage: 1, maxitaxi: 1, maxibus: 1, stars: 1, stars2: 1 };
+const boughtUpgrades = {};
+const pets = [];
+let selectedPets = [];
+const MAX_SELECTED_PETS = 3;
+
+const rarities = {
+  trash: { name: 'Müll', chance: 0.6, bonus: 1 },
+  uncommon: { name: 'Ungewöhnlicher', chance: 0.25, bonus: 5 },
+  rare: { name: 'Seltener', chance: 0.1, bonus: 15 },
+  epic: { name: 'Epischer', chance: 0.04, bonus: 30 },
+  legendary: { name: 'Legendärer', chance: 0.01, bonus: 100 },
+  mythical: { name: 'Mythischer', chance: 0.01, bonus: 10000.0 },
+  event: { name: 'Event', chance: 0.01, bonus: 2.0 },
+  event2: { name: 'Event', chance: 0.01, bonus: 2.5 },
+  event3: { name: 'Event', chance: 0.01, bonus: 3.0 }
+};
+
+const eggTypes = {
+  trash: { cost: 100, chances: { trash: 1.0 } },
+  basic: { cost: 300, chances: { trash: 0.4, uncommon: 0.4, rare: 0.2 } },
+  royal: { cost: 1000, chances: { uncommon: 0.3, rare: 0.4, epic: 0.2, legendary: 0.1 } },
+  op: { cost: 100000, chances: { legendary: 0.9, mythical: 0.1 } },
+  event: { cost: 25, chances: { event: 0.6, event2: 0.35, event3: 0.05 } }
+};
+
+const tierarten = {
+  trash: ["Hund", "Katze", "Maus"],
+  uncommon: ["Hase", "Fuchs", "Igel"],
+  rare: ["Eule", "Pinguin", "Waschbär"],
+  epic: ["Phönix", "Wolf", "Schildkröte"],
+  legendary: ["Drache", "Greif", "Hippogreif"],
+  mythical: ["Giraffe", "Walfisch", "Roter Panda"],
+  event: ["Igel"],
+  event2: ["Katze"],
+  event3: ["Eule"]
+};
+
+function updateDisplay() {
+  /*if (isNaN(cookieCount)) cookieCount = 0;*/
+  document.getElementById('cookie-count').innerText = `Maxies: ${Math.floor(cookieCount)}`;
+  document.getElementById('automaxi-count').innerText = `Automaxis: ${autoMaxis}`;
+  document.getElementById('grandmaxi-count').innerText = `Grandmaxis: ${grandMaxis}`;
+  document.getElementById('maxiplantage-count').innerText = `Maxiplantagen: ${maxiplantage}`;
+  document.getElementById('maxitaxi-count').innerText = `Maxitaxis: ${maxitaxis}`;
+  document.getElementById('maxibus-count').innerText = `Maxibusse: ${maxibus}`;
+  document.getElementById('win-count').innerText = `Wins: ${wins}`;
+  document.getElementById('automaxi').innerText = `Buy Automaxi (${autoMaxiCost} Maxies)`;
+  document.getElementById('grandmaxi').innerText = `Buy Grandmaxi (${grandMaxiCost} Maxies)`;
+  document.getElementById('maxiplantage').innerText = `Buy Maxiplantage (${maxiplantageCost} Maxies)`;
+  document.getElementById('maxitaxi').innerText = `Buy Maxitaxi (${maxitaxiCost} Maxies)`;
+  document.getElementById('maxibus').innerText = `Buy Maxibus (${maxibusCost} Maxies)`;
+  document.getElementById('win').innerText = `Buy Win (${winCost} Maxies)`;
+  document.getElementById('star-count').innerText = `Stars: ${Math.floor(starCount)}`;
+}
+
+document.getElementById('cookie').onclick = () => {
+  cookieCount++;
+  updateDisplay();
+};
+
+document.getElementById('cookie2').onclick = () => {
+  let multiplier = itemMultipliers.stars * itemMultipliers.stars2;
+  if (itemMultipliers.stars > 12) {
+    itemMultipliers.stars = 12;
+    multiplier = 12;
+  }
+  pets.forEach(pet => {
+    if (pet.affectsStars) multiplier *= pet.bonus;
+  });
+  starCount += 1 * multiplier;
+  updateDisplay();
+  const btn = document.getElementById('cookie2');
+  btn.disabled = true;
+  let seconds = 5;
+  const originalText = '⭐️';
+  const interval = setInterval(() => {
+    btn.innerText = `Cooldown: ${seconds--}s`;
+    if (seconds < 0) {
+      clearInterval(interval);
+      btn.innerText = originalText;
+      btn.disabled = false;
+    }
+  }, 1000);
+};
+
+    
+    document.getElementById('automaxi').onclick = () => {
+  if (cookieCount >= autoMaxiCost) {
+    cookieCount -= autoMaxiCost;
+    autoMaxis++;
+    autoMaxiCost = Math.round(autoMaxiCost * 1.15);
+    updateDisplay();
+  } else {
+    alert("Nicht genug Maxies für Automaxi.");
+  }
+};
+
+document.getElementById('grandmaxi').onclick = () => {
+  if (cookieCount >= grandMaxiCost) {
+    cookieCount -= grandMaxiCost;
+    grandMaxis++;
+    grandMaxiCost = Math.round(grandMaxiCost * 1.15);
+    updateDisplay();
+  } else {
+    alert("Nicht genug Maxies für Grandmaxi.");
+  }
+};
+
+document.getElementById('maxiplantage').onclick = () => {
+  if (cookieCount >= maxiplantageCost) {
+    cookieCount -= maxiplantageCost;
+    maxiplantage++;
+    maxiplantageCost = Math.round(maxiplantageCost * 1.3);
+    updateDisplay();
+  } else {
+    alert("Nicht genug Maxies für Maxiplantage.");
+  }
+};
+
+document.getElementById('maxitaxi').onclick = () => {
+  if (cookieCount >= maxitaxiCost) {
+    cookieCount -= maxitaxiCost;
+    maxitaxis++;
+    maxitaxiCost = Math.round(maxitaxiCost * 1.3);
+    updateDisplay();
+  } else {
+    alert("Nicht genug Maxies für Maxitaxi.");
+  }
+};
+
+document.getElementById('maxibus').onclick = () => {
+  if (cookieCount >= maxibusCost) {
+    cookieCount -= maxibusCost;
+    maxibus++;
+    maxibusCost = Math.round(maxibusCost * 1.3);
+    updateDisplay();
+  } else {
+    alert("Nicht genug Maxies für Maxibus.");
+  }
+};
+
+document.getElementById('win').onclick = () => {
+  if (cookieCount >= winCost) {
+    cookieCount -= winCost;
+    wins++;
+    winCost = Math.round(winCost * 1.15);
+    alert("Herzlichen Glückwunsch! Du hast gewonnen!");
+    updateDisplay();
+  } else {
+    alert("Nicht genug Maxies für den Win.");
+  }
+};
+
+
+document.getElementById('event-btn').onclick = eventActive;
+document.getElementById('event-btn-ext').onclick = eventInactive;
+
+function eventActive() {
+  document.getElementById('event-btn').style.display = 'none';
+  document.getElementById('cookie').style.display = 'none';
+  document.getElementById('cookie2').style.display = 'block';
+  document.getElementById('event-btn-ext').style.display = 'block';
+}
+
+function eventInactive() {
+  document.getElementById('event-btn').style.display = 'block';
+  document.getElementById('cookie').style.display = 'block';
+  document.getElementById('cookie2').style.display = 'none';
+  document.getElementById('event-btn-ext').style.display = 'none';
+}
+
+function autoClick() {
+  let total =
+    (autoMaxis * itemMultipliers.automaxi) +
+    (grandMaxis * 5 * itemMultipliers.grandmaxi) +
+    (maxiplantage * 15 * itemMultipliers.maxiplantage) +
+    (maxitaxis * 45 * itemMultipliers.maxitaxi) +
+    (maxibus * 100 * itemMultipliers.maxibus);
+  selectedPets.forEach(pet => total += pet.bonus);
+  cookieCount += total * globalMultiplier;
+  updateDisplay();
+}
+    
+    function buyGlobalMultiplier(btn) {
+      if (cookieCount >= 500) {
+        cookieCount -= 500;
+        globalMultiplier *= 2;
+        btn.remove();
+        updateDisplay();
+      }
+    }
+
+function buyItemMultiplier(item, cost, btn, multiplier = 1.5, useStars = false) {
+  const resourceEnough = useStars ? starCount >= cost : cookieCount >= cost;
+  if (!boughtUpgrades[item] && resourceEnough) {
+    if (useStars) starCount -= cost;
+    else cookieCount -= cost;
+
+    itemMultipliers[item] *= multiplier;
+    boughtUpgrades[item] = true;
+    btn.remove();
+    updateDisplay();
+  }
+}
+
+
+
+function refreshPetList() {
+  const list = document.getElementById("pet-list");
+  list.innerHTML = '';
+  pets.forEach((pet) => {
+    const div = document.createElement("div");
+    const isSelected = selectedPets.includes(pet);
+    div.className = "pet-entry" + (isSelected ? " selected" : "");
+    div.textContent = pet.affectsStars
+      ? `${pet.name} (x${pet.bonus} Sterne)`
+      : `${pet.name} (+${pet.bonus}/sec)`;
+    div.onclick = () => {
+      if (isSelected) {
+        selectedPets = selectedPets.filter(p => p !== pet);
+      } else if (selectedPets.length < MAX_SELECTED_PETS) {
+        selectedPets.push(pet);
+      } else {
+        alert(`Du kannst nur ${MAX_SELECTED_PETS} Haustiere gleichzeitig auswählen.`);
+      }
+      refreshPetList();
+    };
+    list.appendChild(div);
+  });
+  document.getElementById("active-pets").innerText =
+    selectedPets.length > 0
+      ? "Aktive Haustiere: " + selectedPets.map(p => p.name).join(", ")
+      : "Aktive Haustiere: Keine";
+}
+
+function savePlayerData() {
+  fetch('/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cookieCount, starCount, autoMaxis, grandMaxis, maxiplantage, maxitaxis, maxibus, wins, globalMultiplier, itemMultipliers, pets, selectedPets })
+  });
+}
+
+function loadPlayerData() {
+  fetch('/load').then(res => res.json()).then(data => {
+    cookieCount = typeof data.cookieCount === 'number' ? data.cookieCount : 0;
+    starCount = typeof data.starCount === 'number' ? data.starCount : 0;
+    autoMaxis = typeof data.autoMaxis === 'number' ? data.autoMaxis : 0;
+    grandMaxis = typeof data.grandMaxis === 'number' ? data.grandMaxis : 0;
+    maxiplantage = typeof data.maxiplantage === 'number' ? data.maxiplantage : 0;
+    maxitaxis = typeof data.maxitaxis === 'number' ? data.maxitaxis : 0;
+    maxibus = typeof data.maxibus === 'number' ? data.maxibus : 0;
+    wins = typeof data.wins === 'number' ? data.wins : 0;
+    globalMultiplier = typeof data.globalMultiplier === 'number' ? data.globalMultiplier : 1;
+    Object.assign(itemMultipliers, data.itemMultipliers || {});
+    pets.length = 0; pets.push(...(data.pets || []));
+    selectedPets.length = 0; selectedPets.push(...(data.selectedPets || []));
+    refreshPetList();
+    updateDisplay();
+  });
+}
+
+function codes() {
+  const input = document.getElementById('dev-password');
+  const panel = document.getElementById('admin-panel');
+  if (input.value === 'Maxi2025') {
+    cookieCount *= 5;
+    starCount *= 5;
+    updateDisplay();
+    alert("Bonus aktiviert! Deine Maxies wurden verfünffacht.");
+  } else if (input.value === 'dev1') {
+    panel.style.display = 'block';
+  } else if (input.value === 'resetAll') {
+    resetAll();
+  }
+  input.value = '';
+}
+
+function checkLoginStatus() {
+  fetch('/me')
+    .then(res => res.json())
+    .then(data => {
+      if (data.user) {
+        sessionStorage.setItem('loggedInUser', data.user);
+        const userDisplay = document.getElementById('logged-in-user');
+        if (userDisplay) {
+          userDisplay.innerText = `Eingeloggt als: ${data.user}`;
+        }
+      } else {
+        sessionStorage.removeItem('loggedInUser');
+        const userDisplay = document.getElementById('logged-in-user');
+        if (userDisplay) {
+          userDisplay.innerText = 'Nicht eingeloggt';
+        }
+        window.location.href = '/login.html'; 
+        
+      }
+    })
+    .catch(err => {
+      console.error('Login check failed:', err);
+    });
+}
+    
+    function logout() {
+  fetch('/logout', { method: 'POST' })
+    .then(res => {
+      if (res.ok) {
+        sessionStorage.removeItem('loggedInUser');
+        window.location.href = '/login.html';
+      } else {
+        alert("Logout fehlgeschlagen.");
+      }
+    })
+    .catch(err => {
+      console.error('Logout error:', err);
+    });
+}
+    
+    
+    function buyEgg(type) {
+  const egg = eggTypes[type];
+  if (!egg) return;
+
+  const usesStars = type === "event";
+  const cost = egg.cost;
+
+  // Check resources
+  if ((usesStars && starCount < cost) || (!usesStars && cookieCount < cost)) {
+    alert("Nicht genug Ressourcen für dieses Ei.");
+    return;
+  }
+
+  // Deduct cost
+  if (usesStars) starCount -= cost;
+  else cookieCount -= cost;
+
+  // Roll for rarity
+  const roll = Math.random();
+  let cumulative = 0;
+  let selectedRarity = null;
+
+  for (const [rarity, chance] of Object.entries(egg.chances)) {
+    cumulative += chance;
+    if (roll <= cumulative) {
+      selectedRarity = rarity;
+      break;
+    }
+  }
+
+  if (selectedRarity) {
+    hatchPet(selectedRarity);
+  }
+
+  updateDisplay();
+}
+
+function hatchPet(rarity) {
+  const options = tierarten[rarity];
+  const selectedTier = options[Math.floor(Math.random() * options.length)];
+  const name = `${rarities[rarity].name} ${selectedTier}`;
+  const bonus = rarities[rarity].bonus;
+  const isEventPet = rarity.startsWith("event");
+
+  const pet = {
+    name,
+    rarity,
+    bonus,
+    affectsStars: isEventPet
+  };
+
+  // Visual reveal animation first
+  startRevealAnimation(options, selectedTier, () => {
+    pets.push(pet);
+    alert(`Du hast ein Haustier erhalten: ${name} (${isEventPet ? '+' + bonus + 'x Sterne' : '+' + bonus + '/sec'})`);
+    refreshPetList();
+  });
+}
+
+ function startRevealAnimation(possibleNames, finalName, onFinish) {
+  const container = document.getElementById("reveal-container");
+  const strip = document.getElementById("reveal-strip");
+  strip.innerHTML = "";
+
+  const ITEM_WIDTH = 110;
+  const DURATION = 8; // seconds
+  const SPINS = 80;   // full pet "tiles" before stopping
+
+  // Fill the strip with shuffled pet names
+  const items = [];
+  for (let i = 0; i < SPINS; i++) {
+    items.push(...shuffleArray(possibleNames));
+  }
+
+  // Add the final winning pet at the end
+  items.push(finalName);
+
+  // Render all items
+  for (const name of items) {
+    const el = document.createElement("div");
+    el.className = "reveal-item";
+    el.textContent = name;
+    strip.appendChild(el);
+  }
+
+  // Reset strip position
+  strip.style.transition = "none";
+  strip.style.transform = "translateX(0)";
+  void strip.offsetWidth; // force layout pass
+
+  // Show the container
+  container.style.display = "block";
+
+  // Calculate scroll distance to center final item
+  const targetIndex = items.length - 1;
+  const scrollDistance = (targetIndex * ITEM_WIDTH) - 110;
+
+  // Animate scroll
+  strip.style.transition = `transform ${DURATION}s cubic-bezier(0.1, 1, 0.3, 1)`;
+  strip.style.transform = `translateX(-${scrollDistance}px)`;
+
+  // Finish after animation ends
+  setTimeout(() => {
+    container.style.display = "none";
+    onFinish();
+  }, DURATION * 1000 + 200);
+}
+
+function shuffleArray(array) {
+  return array.slice().sort(() => Math.random() - 0.5);
+}
+
+    function refreshPetList() {
+  const list = document.getElementById("pet-list");
+  list.innerHTML = '';
+  pets.forEach((pet) => {
+    const div = document.createElement("div");
+    const isSelected = selectedPets.includes(pet);
+    div.className = "pet-entry" + (isSelected ? " selected" : "");
+
+    div.textContent = pet.affectsStars
+  ? `${pet.name} (x${pet.bonus} Sterne)`
+  : `${pet.name} (+${pet.bonus}/sec)`;
+
+
+    div.onclick = () => {
+      if (isSelected) {
+        selectedPets = selectedPets.filter(p => p !== pet);
+      } else if (selectedPets.length < MAX_SELECTED_PETS) {
+        selectedPets.push(pet);
+      } else {
+        alert(`Du kannst nur ${MAX_SELECTED_PETS} Haustiere gleichzeitig auswählen.`);
+
+      }
+      refreshPetList();
+    };
+    list.appendChild(div);
+  });
+
+  document.getElementById("active-pets").innerText =
+    selectedPets.length > 0
+      ? "Aktive Haustiere: " + selectedPets.map(p => p.name).join(", ")
+      : "Aktive Haustiere: Keine";
+}
+    
+function resetAll() {
+  const confirmed = confirm("Bist du sicher, dass du ALLES zurücksetzen möchtest? Dies kann nicht rückgängig gemacht werden.");
+  if (!confirmed) return;
+
+  cookieCount = 0;
+  starCount = 0;
+  autoMaxis = 0;
+  grandMaxis = 0;
+  maxiplantage = 0;
+  maxitaxis = 0;
+  maxibus = 0;
+  wins = 0;
+  globalMultiplier = 1;
+  Object.keys(itemMultipliers).forEach(k => itemMultipliers[k] = 1);
+  selectedPets = [];
+  pets.length = 0;
+  updateDisplay();
+  refreshPetList();
+  savePlayerData();
+}
+    
+      document.getElementById("restrtServer").onclick = async () => {
+    const response = await fetch('http://localhost:4000/restart', {
+      method: 'POST'
+    });
+    const data = await response.json();
+    console.log(data);
+  };
+
+    
+    
+
+    // Dev panel buttons can call resetAll() like:
+    // <button onclick="resetAll()">Reset Game</button>
+
+    // Catch browser close to save data
+    window.addEventListener('beforeunload', savePlayerData);
+
+    
+    
+setInterval(autoClick, 1000);
+setInterval(savePlayerData, 1000);
+checkLoginStatus();
+loadPlayerData();
+</script>
+
+  
+</body>
+</html>
